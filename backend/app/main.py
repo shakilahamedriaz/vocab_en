@@ -9,13 +9,14 @@ settings = get_settings()
 # Create tables
 Base.metadata.create_all(bind=engine)
 
-# Add ai_explanation column if it doesn't exist (for existing DBs)
+# Add ai_explanation column for SQLite (existing DBs only)
 from sqlalchemy import text
-with engine.connect() as conn:
-    cols = [r[1] for r in conn.execute(text("PRAGMA table_info(vocabulary)"))]
-    if "ai_explanation" not in cols:
-        conn.execute(text("ALTER TABLE vocabulary ADD COLUMN ai_explanation JSON"))
-        conn.commit()
+if settings.DATABASE_URL.startswith("sqlite"):
+    with engine.connect() as conn:
+        cols = [r[1] for r in conn.execute(text("PRAGMA table_info(vocabulary)"))]
+        if "ai_explanation" not in cols:
+            conn.execute(text("ALTER TABLE vocabulary ADD COLUMN ai_explanation JSON"))
+            conn.commit()
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -27,7 +28,7 @@ app = FastAPI(
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=settings.all_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

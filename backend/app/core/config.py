@@ -23,8 +23,16 @@ class Settings(BaseSettings):
     GOOGLE_API_KEY: str = ""
     GROQ_API_KEY: str = ""
     
-    # CORS
+    # CORS — add your Vercel URL via CORS_ORIGINS env var in production
     CORS_ORIGINS: list = ["http://localhost:5173", "http://localhost:3000"]
+    FRONTEND_URL: str = ""
+
+    @property
+    def all_cors_origins(self) -> list:
+        origins = list(self.CORS_ORIGINS)
+        if self.FRONTEND_URL:
+            origins.append(self.FRONTEND_URL)
+        return origins
     
     class Config:
         env_file = ".env"
