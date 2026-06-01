@@ -3,13 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, Sparkles } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login } = useAuthStore();
+  const { login, googleLogin } = useAuthStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,6 +72,30 @@ export default function LoginPage() {
 
           <h1 className="text-2xl font-semibold text-surface-900 dark:text-white mb-1">Welcome back</h1>
           <p className="text-surface-500 dark:text-surface-400 text-sm mb-8">Sign in to continue learning</p>
+
+          <div className="mb-6">
+            <GoogleLogin
+              onSuccess={async (res) => {
+                if (!res.credential) return;
+                try {
+                  await googleLogin(res.credential);
+                  navigate('/');
+                } catch {
+                  toast.error('Google sign-in failed');
+                }
+              }}
+              onError={() => toast.error('Google sign-in failed')}
+              width="100%"
+              text="signin_with"
+              shape="rectangular"
+            />
+          </div>
+
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px bg-surface-200 dark:bg-surface-700" />
+            <span className="text-xs text-surface-400">or</span>
+            <div className="flex-1 h-px bg-surface-200 dark:bg-surface-700" />
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">

@@ -8,6 +8,7 @@ export interface User {
   subscription_tier: string;
   theme: string;
   created_at: string;
+  avatar_url?: string;
 }
 
 export interface Word {
